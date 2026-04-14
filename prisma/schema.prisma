@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+}
+
+model Project {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  dashboards  Dashboard[]
+  datasets    Dataset[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Dataset {
+  id        String   @id @default(uuid())
+  name      String
+  projectId String
+  rowCount  Int      @default(0)
+  schema    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  metrics   Metric[]
+}
+
+model Metric {
+  id        String   @id @default(uuid())
+  name      String
+  formula   String?
+  datasetId String
+  value     Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  dataset   Dataset  @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+}
+
+model Dashboard {
+  id        String   @id @default(uuid())
+  name      String
+  projectId String
+  layout    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
